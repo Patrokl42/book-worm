@@ -17,7 +17,7 @@ export default class WelcomeScreen extends Component {
                     justifyContent: 'center'
                 }}>
                     <Ionicons
-                        name='md-bookmarks'
+                        name='md-cube'
                         size={150}
                         style={{color:'#c513af'}}
                     />
@@ -26,7 +26,7 @@ export default class WelcomeScreen extends Component {
                         fontSize: 28,
                         color: '#232a38'
                     }}>
-                        Book Worm
+                        Warehouse Manager
                     </Text>
                 </View>
                 <View style={{

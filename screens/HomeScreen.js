@@ -32,8 +32,10 @@ class HomeScreen extends Component {
             totalCount: 0,
             readingCount: 0,
             readCount: 0,
-            isAddNewBookVisible: false,
-            textInputData:'',
+            isAddNewDepartureVisible: false,
+            departureCode:'',
+            department:'',
+            deliveryCompany: '',
             books: [],
             currentUser: {},
             booksReading: [],
@@ -71,20 +73,13 @@ class HomeScreen extends Component {
         }
     };
 
-    showAddNewBook = () => {
-        this.setState({
-            isAddNewBookVisible: true
-        });
-    };
-
-    hideAddNewBook = () => {
-        this.setState({
-            isAddNewBookVisible: false
-        });
-    };
-
     addBook = async book => {
-        this.setState({textInputData:''});
+        this.setState({
+            departureCode: '',
+            department: '',
+            deliveryCompany: '',
+            isAddNewDepartureVisible: false
+        });
         this.textInputRef.setNativeProps({ text: '' });
         this.props.toggleIsLoadingBooks(true);
         try {
@@ -97,7 +92,7 @@ class HomeScreen extends Component {
                 .once('value');
 
             if(snapshot.exists()) {
-                alert('Unable to add as book already exist')
+                alert('Unable to add Parcel already exist')
             } else {
                 const key = await firebase
                     .database()
@@ -277,12 +272,12 @@ class HomeScreen extends Component {
 
         if (!item.read) {
             swipeoutButtons.unshift({
-                text: 'Mark Read',
+                text: 'Mark Sent',
                 component: (
                     <View style={{flex:1,
                         alignItems: 'center',
                         justifyContent: 'center'}}>
-                        <Text style={{color: '#fff', textAlign: 'center'}}>Mark as Read</Text>
+                        <Text style={{color: '#fff', textAlign: 'center'}}>Mark as Received</Text>
                     </View>
                 ),
                 backgroundColor: '#17bebb',
@@ -290,10 +285,10 @@ class HomeScreen extends Component {
             })
         } else {
             swipeoutButtons.unshift({
-                text: 'Mark Unread',
+                text: 'Mark Not Sent',
                 component: (
                     <View style={{flex:1 , alignItems: 'center', justifyContent: 'center'}}>
-                        <Text style={{color: '#fff', textAlign: 'center'}}>Mark Unread</Text>
+                        <Text style={{color: '#fff', textAlign: 'center'}}>Mark Not Received</Text>
                     </View>
                 ),
                 backgroundColor: '#17bebb',
@@ -348,15 +343,37 @@ class HomeScreen extends Component {
                         </View>
                     )}
 
-                    <View style={styles.textInputContainer}>
-                        <TextInput
-                            style={styles.textInput}
-                            placeholder='Enter Book Name'
-                            placeholderTextColor='#a7a9ac'
-                            onChangeText={(text) => this.setState({textInputData: text})}
-                            ref={component => {this.textInputRef = component}}>
-                        </TextInput>
-                    </View>
+                    { this.state.isAddNewDepartureVisible && (
+                        <View style={styles.textInputContainer}>
+                            <Text style={{
+                                fontWeight: '800',
+                                fontSize: 22,
+                                color: '#fff',
+                                marginBottom: 5
+                            }}>New Departure:</Text>
+                            <TextInput
+                                style={styles.textInput}
+                                placeholder='Departure Code'
+                                placeholderTextColor='#a7a9ac'
+                                onChangeText={(text) => this.setState({departureCode: text})}
+                                ref={component => {this.textInputRef = component}}>
+                            </TextInput>
+                            <TextInput
+                                style={styles.textInput}
+                                placeholder='Department'
+                                placeholderTextColor='#a7a9ac'
+                                onChangeText={(text) => this.setState({department: text})}
+                                ref={component => {this.textInputRef = component}}>
+                            </TextInput>
+                            <TextInput
+                                style={styles.textInput}
+                                placeholder='Delivery Company'
+                                placeholderTextColor='#a7a9ac'
+                                onChangeText={(text) => this.setState({deliveryCompany: text})}
+                                ref={component => {this.textInputRef = component}}>
+                            </TextInput>
+                        </View>
+                    )}
 
                     <FlatList
                         data={this.props.books.books}
@@ -369,14 +386,23 @@ class HomeScreen extends Component {
                         }
                     />
 
-                    {this.state.textInputData.length > 0 ? (
+                    {this.state.departureCode.length > 0 ? (
                         <CustomActionButton
                             position='right'
-                            onPress={()=> this.addBook(this.state.textInputData)}
+                            onPress={()=> this.addBook(this.state.departureCode)}
+                            style={styles.addNewBookButton}>
+                            <Text style={{color: 'white', fontSize: 30}}>✓</Text>
+                        </CustomActionButton>
+                    ) :
+                    (
+                        <CustomActionButton
+                            position='right'
+                            onPress={()=> this.setState({ isAddNewDepartureVisible: !this.state.isAddNewDepartureVisible})}
                             style={styles.addNewBookButton}>
                             <Text style={{color: 'white', fontSize: 30}}>+</Text>
                         </CustomActionButton>
-                    ) : null}
+                    )
+                    }
 
                 </View>
                 <SafeAreaView/>
@@ -437,19 +463,22 @@ const styles = StyleSheet.create({
     },
     headerTitle: { fontSize: 24 },
     textInputContainer: {
-        height: 50,
-        flexDirection: 'row',
-        margin: 5
+        height: 180,
+        flexDirection: 'column',
+        margin: 5,
+        backgroundColor: '#c513af',
+        padding: 10,
+        borderRadius:10,
     },
     textInput: {
         flex: 1,
-        backgroundColor: 'transparent',
-        paddingLeft: 5,
-        borderBottomWidth: 2,
-        borderColor: '#17bebb',
+        backgroundColor: '#fff',
+        padding: 5,
         fontSize: 22,
         fontWeight: '200',
-        color: '#000000'
+        color: '#000',
+        marginBottom: 8,
+        borderRadius:10
     },
     checkmarkButton: {
         backgroundColor: '#38e26f'

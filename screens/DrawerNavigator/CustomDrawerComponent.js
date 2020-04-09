@@ -23,7 +23,7 @@ export default class CustomDrawerComponent extends Component {
                     paddingTop: Platform.OS === 'android' ? 20 : 0
                 }}>
                     <Ionicons
-                        name='md-bookmarks'
+                        name='md-cube'
                         size={100}
                         color='#c513af'/>
                     <Text style={{
@@ -31,7 +31,7 @@ export default class CustomDrawerComponent extends Component {
                         fontWeight: '500',
                         color: '#232a38'
                     }}>
-                        Book Worm
+                        Warehouse Manager
                     </Text>
                 </View>
                 <DrawerItems {...this.props}/>

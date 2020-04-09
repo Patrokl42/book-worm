@@ -47,7 +47,7 @@ const HomeTabNavigator = createBottomTabNavigator({
     HomeScreen: {
         screen: HomeScreen,
         navigationOptions: {
-            tabBarLabel: 'Total Books',
+            tabBarLabel: 'Total Parcel',
             tabBarIcon: ({tintColor}) => (
                 <BooksCountContainer color={tintColor} type='books' />
             )
@@ -56,7 +56,7 @@ const HomeTabNavigator = createBottomTabNavigator({
     BooksReadingScreen: {
         screen: BooksReadingScreen,
         navigationOptions: {
-            tabBarLabel: 'Books Read',
+            tabBarLabel: 'On The Way',
             tabBarIcon: ({tintColor}) => (
                 <BooksCountContainer color={tintColor} type='booksReading' />
             )
@@ -65,7 +65,7 @@ const HomeTabNavigator = createBottomTabNavigator({
     BooksReadScreen: {
         screen: BooksReadScreen,
         navigationOptions: {
-            tabBarLabel: 'Books Reading',
+            tabBarLabel: 'Parcel Received',
             tabBarIcon: ({tintColor}) => (
                 <BooksCountContainer color={tintColor} type='booksRead' />
             )
@@ -114,19 +114,19 @@ HomeTabNavigator.navigationOptions = ({navigation}) => {
     switch(routeName) {
         case 'HomeScreen':
             return{
-                headerTitle: 'Total Books'
+                headerTitle: 'Total Parcel'
             };
         case 'BooksReadingScreen':
             return{
-                headerTitle: 'Books Reading'
+                headerTitle: 'On The Way'
             };
         case 'BooksReadScreen':
             return{
-                headerTitle: 'Books Read'
+                headerTitle: 'Parcel Received'
             };
         default:
             return{
-                headerTitle: 'Book Worm'
+                headerTitle: 'Warehouse Manager'
             };
     }
 };
