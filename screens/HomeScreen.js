@@ -39,11 +39,7 @@ class HomeScreen extends Component {
             books: [],
             currentUser: {},
             booksReading: [],
-            booksRead: [],
-            bookData: {
-                author: '',
-                publisher: ''
-            }
+            booksRead: []
         };
         this.textInputRef = null;
     }
@@ -73,7 +69,7 @@ class HomeScreen extends Component {
         }
     };
 
-    addBook = async book => {
+    addBook = async (departureCode, deliveryCompany, department) => {
         this.setState({
             departureCode: '',
             department: '',
@@ -88,7 +84,7 @@ class HomeScreen extends Component {
                 .ref('books')
                 .child(this.state.currentUser.uid)
                 .orderByChild('name')
-                .equalTo(book)
+                .equalTo(departureCode)
                 .once('value');
 
             if(snapshot.exists()) {
@@ -105,9 +101,20 @@ class HomeScreen extends Component {
                     .ref('books')
                     .child(this.state.currentUser.uid)
                     .child(key)
-                    .set({ name: book, read: false });
+                    .set({
+                        departureCode: departureCode,
+                        deliveryCompany: deliveryCompany,
+                        department: department,
+                        received: false
+                    });
 
-                this.props.addBook({name: book, read: false, key:key})
+                this.props.addBook({
+                    departureCode: departureCode,
+                    deliveryCompany: deliveryCompany,
+                    department: department,
+                    received: false,
+                    key:key
+                });
                 this.props.toggleIsLoadingBooks(false);
             }
         } catch (error) {
@@ -122,16 +129,16 @@ class HomeScreen extends Component {
 
             await firebase.database().ref('books')
                 .child(this.state.currentUser.uid).child(selectedBook.key)
-                .update({read: true});
+                .update({received: true});
 
             let books = this.state.books.map(book => {
-                if (book.name === selectedBook.name) {
-                    return {...book, read: true}
+                if (book.departureCode === selectedBook.departureCode) {
+                    return {...book, received: true}
                 }
                 return book
             });
             let booksReading = this.state.booksReading.filter(
-                book => book.name !== selectedBook.name
+                book => book.departureCode !== selectedBook.departureCode
             );
 
             this.props.markBooksAsRead(selectedBook);
@@ -151,7 +158,7 @@ class HomeScreen extends Component {
                 .database()
                 .ref('books')
                 .child(this.state.currentUser.uid).child(selectedBook.key)
-                .update({read: false});
+                .update({received: false});
 
             this.props.markBooksAsUnread(selectedBook);
             this.props.toggleIsLoadingBooks(false);
@@ -270,7 +277,7 @@ class HomeScreen extends Component {
             }
         ];
 
-        if (!item.read) {
+        if (!item.received) {
             swipeoutButtons.unshift({
                 text: 'Mark Sent',
                 component: (
@@ -308,7 +315,7 @@ class HomeScreen extends Component {
                     marginVertical={0}
                     onPress={() => this.addBookImage(item)}
                 >
-                    {item.read && (
+                    {item.received && (
                         <Ionicons name='md-checkmark'
                                   size={32}
                                   style={{
@@ -389,7 +396,7 @@ class HomeScreen extends Component {
                     {this.state.departureCode.length > 0 ? (
                         <CustomActionButton
                             position='right'
-                            onPress={()=> this.addBook(this.state.departureCode)}
+                            onPress={()=> this.addBook(this.state.departureCode, this.state.deliveryCompany, this.state.department)}
                             style={styles.addNewBookButton}>
                             <Text style={{color: 'white', fontSize: 30}}>✓</Text>
                         </CustomActionButton>

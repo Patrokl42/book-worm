@@ -17,6 +17,7 @@ const BooksCountContainer = ({color, type, ...props}) => {
                 alignItems: 'center'
             }}>
                 <Text style={{color: '#fff'}}>
+                    {console.log(props.books[type])}
                     {props.books[type].length || 0}
                 </Text>
             </View>

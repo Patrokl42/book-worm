@@ -69,11 +69,27 @@ const ListItem = ({ item, children, marginVertical, editable, onPress }) => {
                 marginLeft: 15
             }}>
                 <Text style={{
-                    fontWeight: '100',
+                    fontWeight: '800',
                     fontSize: 22,
                     color: '#232a38'
                 }}>
-                    {item.name}
+                    {item.departureCode}
+                </Text>
+                <Text style={{
+                    fontWeight: '100',
+                    fontSize: 15,
+                    color: '#232a38',
+                    marginTop: 5
+                }}>
+                    {item.department}
+                </Text>
+                <Text style={{
+                    fontWeight: '100',
+                    fontSize: 12,
+                    color: '#c513af',
+                    marginTop: 4
+                }}>
+                    Delivery Company: {item.deliveryCompany}
                 </Text>
             </View>
             {children}

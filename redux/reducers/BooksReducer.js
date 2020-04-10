@@ -12,8 +12,8 @@ const books = (state=initialState, action) => {
             return {
                 ...state,
                 books: action.payload,
-                booksReading: action.payload.filter(book => !book.read),
-                booksRead: action.payload.filter(book => book.read)
+                booksReading: action.payload.filter(book => !book.received),
+                booksRead: action.payload.filter(book => book.received)
             };
 
         case 'ADD_BOOK':
@@ -27,14 +27,14 @@ const books = (state=initialState, action) => {
             return {
                 ...state,
                 books: state.books.map(book => {
-                    if (book.name === action.payload.name) {
-                        return { ...book, read: true};
+                    if (book.departureCode === action.payload.departureCode) {
+                        return { ...book, received: true};
                     }
                     return book
                 }),
                 booksRead: [...state.booksRead, action.payload],
                 booksReading: state.booksRead.filter(
-                    book => book.name !== action.payload.name
+                    book => book.departureCode !== action.payload.departureCode
                 )
             };
 
@@ -48,41 +48,41 @@ const books = (state=initialState, action) => {
             return {
                 ...state,
                 books: state.books.map(book => {
-                    if (book.name === action.payload.name) {
-                        return { ...book, read: false};
+                    if (book.departureCode === action.payload.departureCode) {
+                        return { ...book, received: false};
                     }
                     return book
                 }),
                 booksRead: state.booksRead.filter(
-                    book => book.name !== action.payload.name
+                    book => book.departureCode !== action.payload.departureCode
                 ),
                 booksReading: [...state.booksReading, action.payload],
             };
 
         case 'DELETE_BOOK':
             return {
-                books: state.books.filter(book => book.name !== action.payload.name),
-                booksRead: state.booksRead.filter(book => book.name !== action.payload.name),
-                booksReading: state.booksReading.filter(book => book.name !== action.payload.name)
+                books: state.books.filter(book => book.departureCode !== action.payload.departureCode),
+                booksRead: state.booksRead.filter(book => book.departureCode !== action.payload.departureCode),
+                booksReading: state.booksReading.filter(book => book.departureCode !== action.payload.departureCode)
             };
 
         case 'UPDATE_BOOK_IMAGE':
             return {
                 ...state,
                 books: state.books.map(book => {
-                    if (book.name === action.payload.name) {
+                    if (book.departureCode === action.payload.departureCode) {
                         return { ...book, image: action.payload.uri};
                     }
                     return book
                 }),
                 booksReading: state.booksReading.map(book => {
-                    if (book.name === action.payload.name) {
+                    if (book.departureCode === action.payload.departureCode) {
                         return { ...book, image: action.payload.uri};
                     }
                     return book
                 }),
                 booksRead: state.booksRead.map(book => {
-                    if (book.name === action.payload.name) {
+                    if (book.departureCode === action.payload.departureCode) {
                         return { ...book, image: action.payload.uri};
                     }
                     return book
