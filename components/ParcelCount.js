@@ -2,7 +2,7 @@ import React from 'react';
 import { Text, View } from "react-native";
 import PropTypes from 'prop-types';
 
-const BookCount = ({ title, count }) => {
+const ParcelCount = ({ title, count }) => {
     return(
         <View style={{
             flex: 1,
@@ -15,13 +15,13 @@ const BookCount = ({ title, count }) => {
     )
 };
 
-BookCount.propTypes = {
+ParcelCount.propTypes = {
     count: PropTypes.number.isRequired,
     title: PropTypes.string
 };
 
-BookCount.defaultProps = {
+ParcelCount.defaultProps = {
     title: 'Title'
 };
 
-export default BookCount;
+export default ParcelCount;

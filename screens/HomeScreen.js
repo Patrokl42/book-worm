@@ -29,17 +29,14 @@ class HomeScreen extends Component {
     constructor() {
         super();
         this.state = {
-            totalCount: 0,
-            readingCount: 0,
-            readCount: 0,
             isAddNewDepartureVisible: false,
             departureCode:'',
             department:'',
             deliveryCompany: '',
-            books: [],
+            parcels: [],
             currentUser: {},
-            booksReading: [],
-            booksRead: []
+            parcelsOnWay: [],
+            parcelsReceived: []
         };
         this.textInputRef = null;
     }
@@ -55,21 +52,21 @@ class HomeScreen extends Component {
                 .child(user.uid)
                 .once('value');
 
-            const books = await firebase.database().ref('books').child(user.uid).once('value');
-            const booksArray = snapshotToArray(books);
+            const parcels = await firebase.database().ref('parcels').child(user.uid).once('value');
+            const parcelsArray = snapshotToArray(parcels);
 
             this.setState({
                 currentUser: currentUserData.val(),
             });
 
-            this.props.loadBooks(booksArray.reverse());
-            this.props.toggleIsLoadingBooks(false);
+            this.props.loadParcels(parcelsArray.reverse());
+            this.props.toggleIsLoadingParcel(false);
         } catch (err) {
             console.log(err);
         }
     };
 
-    addBook = async (departureCode, deliveryCompany, department) => {
+    addParcel = async (departureCode, deliveryCompany, department) => {
         this.setState({
             departureCode: '',
             department: '',
@@ -77,13 +74,13 @@ class HomeScreen extends Component {
             isAddNewDepartureVisible: false
         });
         this.textInputRef.setNativeProps({ text: '' });
-        this.props.toggleIsLoadingBooks(true);
+        this.props.toggleIsLoadingParcel(true);
         try {
             const snapshot = await firebase
                 .database()
-                .ref('books')
+                .ref('parcels')
                 .child(this.state.currentUser.uid)
-                .orderByChild('name')
+                .orderByChild('departureCode')
                 .equalTo(departureCode)
                 .once('value');
 
@@ -92,13 +89,13 @@ class HomeScreen extends Component {
             } else {
                 const key = await firebase
                     .database()
-                    .ref('books')
+                    .ref('parcels')
                     .child(this.state.currentUser.uid)
                     .push().key;
 
                 const response = await firebase
                     .database()
-                    .ref('books')
+                    .ref('parcels')
                     .child(this.state.currentUser.uid)
                     .child(key)
                     .set({
@@ -108,72 +105,72 @@ class HomeScreen extends Component {
                         received: false
                     });
 
-                this.props.addBook({
+                this.props.addParcel({
                     departureCode: departureCode,
                     deliveryCompany: deliveryCompany,
                     department: department,
                     received: false,
                     key:key
                 });
-                this.props.toggleIsLoadingBooks(false);
+                this.props.toggleIsLoadingParcel(false);
             }
         } catch (error) {
             console.log(error);
-            this.props.toggleIsLoadingBooks(false);
+            this.props.toggleIsLoadingParcel(false);
         }
     };
 
-    markAsRead = async (selectedBook, index) => {
+    markAsReceived = async (selectedParcel, index) => {
         try {
-            this.props.toggleIsLoadingBooks(true);
+            this.props.toggleIsLoadingParcel(true);
 
-            await firebase.database().ref('books')
-                .child(this.state.currentUser.uid).child(selectedBook.key)
+            await firebase.database().ref('parcels')
+                .child(this.state.currentUser.uid).child(selectedParcel.key)
                 .update({received: true});
 
-            let books = this.state.books.map(book => {
-                if (book.departureCode === selectedBook.departureCode) {
-                    return {...book, received: true}
+            let parcels = this.state.parcels.map(parcel => {
+                if (parcel.departureCode === selectedParcel.departureCode) {
+                    return {...parcel, received: true}
                 }
-                return book
+                return parcel
             });
-            let booksReading = this.state.booksReading.filter(
-                book => book.departureCode !== selectedBook.departureCode
+            let parcelsOnWay = this.state.parcelsOnWay.filter(
+                parcel => parcel.departureCode !== selectedParcel.departureCode
             );
 
-            this.props.markBooksAsRead(selectedBook);
-            this.props.toggleIsLoadingBooks(false);
+            this.props.markParcelAsReceived(selectedParcel);
+            this.props.toggleIsLoadingParcel(false);
 
         } catch(err) {
             console.log(err);
-            this.props.toggleIsLoadingBooks(false);
+            this.props.toggleIsLoadingParcel(false);
         }
     };
 
-    markAsUnread = async (selectedBook, index) => {
+    markAsNotReceived = async (selectedParcel, index) => {
         try {
-            this.props.toggleIsLoadingBooks(true);
+            this.props.toggleIsLoadingParcel(true);
 
             await firebase
                 .database()
-                .ref('books')
-                .child(this.state.currentUser.uid).child(selectedBook.key)
+                .ref('parcels')
+                .child(this.state.currentUser.uid).child(selectedParcel.key)
                 .update({received: false});
 
-            this.props.markBooksAsUnread(selectedBook);
-            this.props.toggleIsLoadingBooks(false);
+            this.props.markParcelAsNotReceived(selectedParcel);
+            this.props.toggleIsLoadingParcel(false);
         } catch (err) {
             console.log(err);
-            this.props.toggleIsLoadingBooks(false);
+            this.props.toggleIsLoadingParcel(false);
         }
     };
 
-    uploadImage = async (image, selectedBook) => {
+    uploadImage = async (image, selectedParcel) => {
         const ref = firebase
                 .storage()
-                .ref('books')
+                .ref('parcels')
                 .child(this.state.currentUser.uid)
-                .child(selectedBook.key);
+                .child(selectedParcel.key);
 
         try {
             const blob = await ImageHelpers.prepareBlob(image.uri);
@@ -183,9 +180,9 @@ class HomeScreen extends Component {
 
             await firebase
                 .database()
-                .ref('books')
+                .ref('parcels')
                 .child(this.state.currentUser.uid)
-                .child(selectedBook.key)
+                .child(selectedParcel.key)
                 .update({image: dowloadUrl});
 
             blob.close();
@@ -197,32 +194,32 @@ class HomeScreen extends Component {
         }
     };
 
-    openImageLibary = async (selectedBook) => {
+    openImageLibary = async (selectedParcel) => {
         const result = await ImageHelpers.openImageLibary();
 
         if (result) {
-            this.props.toggleIsLoadingBooks(true);
-            const downloadUrl = await this.uploadImage(result, selectedBook);
+            this.props.toggleIsLoadingParcel(true);
+            const downloadUrl = await this.uploadImage(result, selectedParcel);
 
-            this.props.updateBookImage({...selectedBook, uri: downloadUrl});
-            this.props.toggleIsLoadingBooks(false);
+            this.props.updateParcelImage({...selectedParcel, uri: downloadUrl});
+            this.props.toggleIsLoadingParcel(false);
         }
     };
 
-    openCamera = async (selectedBook) => {
+    openCamera = async (selectedParcel) => {
         const result = await ImageHelpers.openCamera();
 
         if (result) {
-            this.props.toggleIsLoadingBooks(true);
-            const downloadUrl = await this.uploadImage(result, selectedBook);
+            this.props.toggleIsLoadingParcel(true);
+            const downloadUrl = await this.uploadImage(result, selectedParcel);
 
-            this.props.updateBookImage({...selectedBook, uri: downloadUrl});
-            this.props.toggleIsLoadingBooks(false);
+            this.props.updateParcelImage({...selectedParcel, uri: downloadUrl});
+            this.props.toggleIsLoadingParcel(false);
 
         }
     };
 
-    addBookImage = (selectedBook) => {
+    addParcelImage = (selectedParcel) => {
         const options = ['Select from Photos', 'Camera', 'Cancel'];
         const cancelButtonIndex = 2;
 
@@ -233,32 +230,32 @@ class HomeScreen extends Component {
             },
             buttonIndex => {
                 if (buttonIndex === 0) {
-                    this.openImageLibary(selectedBook)
+                    this.openImageLibary(selectedParcel)
                 }
                 else if (buttonIndex === 1) {
-                    this.openCamera(selectedBook)
+                    this.openCamera(selectedParcel)
                 }
             }
         )
 
     };
 
-    deleteBook = async (selectedBook, index) => {
+    deleteParcel = async (selectedParcel, index) => {
         try {
-            this.props.toggleIsLoadingBooks(true);
+            this.props.toggleIsLoadingParcel(true);
 
             await firebase
                 .database()
-                .ref('books')
-                .child(this.state.currentUser.uid).child(selectedBook.key)
+                .ref('parcels')
+                .child(this.state.currentUser.uid).child(selectedParcel.key)
                 .remove();
 
-            this.props.deleteBook(selectedBook);
-            this.props.toggleIsLoadingBooks(false);
+            this.props.deleteParcel(selectedParcel);
+            this.props.toggleIsLoadingParcel(false);
 
         } catch(err) {
             console.log(err);
-            this.props.toggleIsLoadingBooks(false);
+            this.props.toggleIsLoadingParcel(false);
         }
     };
 
@@ -273,7 +270,7 @@ class HomeScreen extends Component {
                     </View>
                 ),
                 backgroundColor: '#c513af',
-                onPress:() => this.deleteBook(item, index)
+                onPress:() => this.deleteParcel(item, index)
             }
         ];
 
@@ -288,7 +285,7 @@ class HomeScreen extends Component {
                     </View>
                 ),
                 backgroundColor: '#17bebb',
-                onPress:() => this.markAsRead(item,index)
+                onPress:() => this.markAsReceived(item,index)
             })
         } else {
             swipeoutButtons.unshift({
@@ -299,7 +296,7 @@ class HomeScreen extends Component {
                     </View>
                 ),
                 backgroundColor: '#17bebb',
-                onPress:() => this.markAsUnread(item,index)
+                onPress:() => this.markAsNotReceived(item,index)
             })
         }
 
@@ -313,7 +310,7 @@ class HomeScreen extends Component {
                     editable={true}
                     item={item}
                     marginVertical={0}
-                    onPress={() => this.addBookImage(item)}
+                    onPress={() => this.addParcelImage(item)}
                 >
                     {item.received && (
                         <Ionicons name='md-checkmark'
@@ -337,7 +334,7 @@ class HomeScreen extends Component {
             }}>
                 <SafeAreaView/>
                 <View style={styles.container}>
-                    {this.props.books.isLoadingBooks && (
+                    {this.props.parcels.isLoadingParcels && (
                         <View style={{
                             ...StyleSheet.absoluteFill,
                             alignItems: 'center',
@@ -383,12 +380,12 @@ class HomeScreen extends Component {
                     )}
 
                     <FlatList
-                        data={this.props.books.books}
+                        data={this.props.parcels.parcels}
                         renderItem={({item}, index) => this.renderItem(item, index)}
                         keyExtractor={(item, index) => index.toString()}
                         ListEmptyComponent={
-                            !this.props.books.isLoadingBooks && (
-                                <ListEmptyComponent text='No books Read'/>
+                            !this.props.parcels.isLoadingParcels && (
+                                <ListEmptyComponent text='No Parcels Received'/>
                             )
                         }
                     />
@@ -396,8 +393,8 @@ class HomeScreen extends Component {
                     {this.state.departureCode.length > 0 ? (
                         <CustomActionButton
                             position='right'
-                            onPress={()=> this.addBook(this.state.departureCode, this.state.deliveryCompany, this.state.department)}
-                            style={styles.addNewBookButton}>
+                            onPress={()=> this.addParcel(this.state.departureCode, this.state.deliveryCompany, this.state.department)}
+                            style={styles.addNewParcelButton}>
                             <Text style={{color: 'white', fontSize: 30}}>✓</Text>
                         </CustomActionButton>
                     ) :
@@ -405,7 +402,7 @@ class HomeScreen extends Component {
                         <CustomActionButton
                             position='right'
                             onPress={()=> this.setState({ isAddNewDepartureVisible: !this.state.isAddNewDepartureVisible})}
-                            style={styles.addNewBookButton}>
+                            style={styles.addNewParcelButton}>
                             <Text style={{color: 'white', fontSize: 30}}>+</Text>
                         </CustomActionButton>
                     )
@@ -420,28 +417,28 @@ class HomeScreen extends Component {
 
 const mapStateToProps = state => {
     return {
-        books: state.books
+        parcels: state.parcels
     }
 };
 
 const mapDispatchToProps = dispatch => {
     return {
-        loadBooks: books => dispatch({
-            type: 'LOAD_BOOKS_FROM_SERVER',
-            payload: books
+        loadParcels: parcel => dispatch({
+            type: 'LOAD_PARCELS_FROM_SERVER',
+            payload: parcel
         }),
-        addBook: book =>
-            dispatch({type: 'ADD_BOOK', payload: book}),
-        markBooksAsRead: book =>
-            dispatch({type: 'MARK_BOOK_AS_READ', payload: book}),
-        markBooksAsUnread: book =>
-            dispatch({type: 'MARK_BOOK_AS_UNREAD', payload: book}),
-        toggleIsLoadingBooks: book =>
-            dispatch({type: 'TOOGLE_IS_LOADING_BOOKS', payload: book}),
-        deleteBook: book =>
-            dispatch({type: 'DELETE_BOOK', payload: book}),
-        updateBookImage: book =>
-            dispatch({type: 'UPDATE_BOOK_IMAGE', payload: book})
+        addParcel: parcel =>
+            dispatch({type: 'ADD_PARCEL', payload: parcel}),
+        markParcelAsReceived: parcel =>
+            dispatch({type: 'MARK_PARCEL_AS_RECEIVED', payload: parcel}),
+        markParcelAsNotReceived: parcel =>
+            dispatch({type: 'MARK_PARCEL_AS_NOT_RECEIVED', payload: parcel}),
+        toggleIsLoadingParcel: parcel =>
+            dispatch({type: 'TOOGLE_IS_LOADING_PARCEL', payload: parcel}),
+        deleteParcel: parcel =>
+            dispatch({type: 'DELETE_PARCEL', payload: parcel}),
+        updateParcelImage: parcel =>
+            dispatch({type: 'UPDATE_PARCEL_IMAGE', payload: parcel})
     }
 };
 
@@ -505,7 +502,7 @@ const styles = StyleSheet.create({
         marginTop:50,
         alignItems: 'center'
     },
-    addNewBookButton: {
+    addNewParcelButton: {
         backgroundColor: '#17bebb',
         borderRadius: 25
     },

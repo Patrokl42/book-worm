@@ -1,9 +1,9 @@
 import {combineReducers, createStore} from 'redux';
-import booksReducer from '../reducers/BooksReducer';
+import ParcelsReducer from '../reducers/ParcelsReducer';
 
 const store = createStore(
     combineReducers({
-        books: booksReducer
+        parcels: ParcelsReducer
     })
 );
 

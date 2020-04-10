@@ -16,13 +16,13 @@ import HomeScreen from './screens/HomeScreen';
 import LoginScreen from './screens/LoginScreen';
 import SettingsScreen from './screens/SettingsScreen';
 import LoadingScreen from './screens/AppSwichNavigator/LoadingScreen';
-import BooksReadScreen from './screens/HomeTabNavigator/BooksReadScreen';
-import BooksReadingScreen from './screens/HomeTabNavigator/BooksReadingScreen';
+import ParcelsReceivedScreen from './screens/HomeTabNavigator/ParcelsReceivedScreen';
+import ParcelsOnWayScreen from './screens/HomeTabNavigator/ParcelsOnWayScreen';
 
 import CustomDrawerComponent from './screens/DrawerNavigator/CustomDrawerComponent';
 import { Provider } from 'react-redux';
 import store from './redux/store';
-import BooksCountContainer from './redux/containers/BooksCountContainer';
+import ParcelsCountContainer from './redux/containers/ParcelsCountContainer';
 
 export default class App extends Component {
     constructor(){
@@ -49,25 +49,25 @@ const HomeTabNavigator = createBottomTabNavigator({
         navigationOptions: {
             tabBarLabel: 'Total Parcel',
             tabBarIcon: ({tintColor}) => (
-                <BooksCountContainer color={tintColor} type='books' />
+                <ParcelsCountContainer color={tintColor} type='parcels' />
             )
         }
     },
-    BooksReadingScreen: {
-        screen: BooksReadingScreen,
+    ParcelsOnWayScreen: {
+        screen: ParcelsOnWayScreen,
         navigationOptions: {
             tabBarLabel: 'On The Way',
             tabBarIcon: ({tintColor}) => (
-                <BooksCountContainer color={tintColor} type='booksReading' />
+                <ParcelsCountContainer color={tintColor} type='parcelsOnWay' />
             )
         }
     },
-    BooksReadScreen: {
-        screen: BooksReadScreen,
+    ParcelsReceivedScreen: {
+        screen: ParcelsReceivedScreen,
         navigationOptions: {
             tabBarLabel: 'Parcel Received',
             tabBarIcon: ({tintColor}) => (
-                <BooksCountContainer color={tintColor} type='booksRead' />
+                <ParcelsCountContainer color={tintColor} type='parcelsReceived' />
             )
         }
     }
@@ -116,11 +116,11 @@ HomeTabNavigator.navigationOptions = ({navigation}) => {
             return{
                 headerTitle: 'Total Parcel'
             };
-        case 'BooksReadingScreen':
+        case 'ParcelsOnWayScreen':
             return{
                 headerTitle: 'On The Way'
             };
-        case 'BooksReadScreen':
+        case 'ParcelsReceivedScreen':
             return{
                 headerTitle: 'Parcel Received'
             };

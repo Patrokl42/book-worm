@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
+import React from 'react';
 import {View, Text} from 'react-native';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 
-const BooksCountContainer = ({color, type, ...props}) => {
+const ParcelsCountContainer = ({color, type, ...props}) => {
     return (
         <View style={{
             flex: 1,
@@ -17,8 +17,7 @@ const BooksCountContainer = ({color, type, ...props}) => {
                 alignItems: 'center'
             }}>
                 <Text style={{color: '#fff'}}>
-                    {console.log(props.books[type])}
-                    {props.books[type].length || 0}
+                    {props.parcels[type].length || 0}
                 </Text>
             </View>
         </View>
@@ -27,17 +26,17 @@ const BooksCountContainer = ({color, type, ...props}) => {
 
 const mapStateToProps = (state) => {
     return{
-        books: state.books
+        parcels: state.parcels
     }
 };
 
-BooksCountContainer.defaultProps = {
+ParcelsCountContainer.defaultProps = {
     color: '#001fff'
 };
 
-BooksCountContainer.propTypes = {
+ParcelsCountContainer.propTypes = {
     color: PropTypes.string,
     type: PropTypes.string.isRequired
 };
 
-export default connect(mapStateToProps)(BooksCountContainer);
+export default connect(mapStateToProps)(ParcelsCountContainer);

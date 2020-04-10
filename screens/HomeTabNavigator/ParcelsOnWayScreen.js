@@ -4,7 +4,7 @@ import ListItem from '../../components/ListItem';
 import { connect } from 'react-redux';
 import ListEmptyComponent from '../../components/ListEmptyComponent';
 
-class BooksReadingScreen extends Component {
+class ParcelsOnWayScreen extends Component {
 
     renderItem = (item) => {
         return <ListItem item={item}/>
@@ -18,7 +18,7 @@ class BooksReadingScreen extends Component {
                 paddingLeft: 5,
                 paddingRight: 5
             }}>
-                {this.props.books.isLoadingBooks && (
+                {this.props.parcels.isLoadingParcels && (
                     <View style={{
                         ...StyleSheet.absoluteFill,
                         alignItems: 'center',
@@ -30,12 +30,12 @@ class BooksReadingScreen extends Component {
                     </View>
                 )}
                 <FlatList
-                    data={this.props.books.booksReading}
+                    data={this.props.parcels.parcelsOnWay}
                     renderItem={({item}, index) => this.renderItem(item, index)}
                     keyExtractor={(item, index) => index.toString()}
                     ListEmptyComponent={
-                        !this.props.books.isLoadingBooks && (
-                            <ListEmptyComponent text='No books Read'/>
+                        !this.props.parcels.isLoadingParcels && (
+                            <ListEmptyComponent text='No Parcel On Way'/>
                         )
                     }
                 />
@@ -46,8 +46,8 @@ class BooksReadingScreen extends Component {
 
 const mapStateToProps = (state) => {
     return{
-        books: state.books
+        parcels: state.parcels
     }
 };
 
-export default connect(mapStateToProps)(BooksReadingScreen);
+export default connect(mapStateToProps)(ParcelsOnWayScreen);

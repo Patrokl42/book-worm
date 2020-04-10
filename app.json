@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "first-project",
-    "slug": "first-project",
+    "name": "Warehouse Manager",
+    "slug": "warehouse-manager",
     "privacy": "public",
     "sdkVersion": "35.0.0",
     "platforms": [
